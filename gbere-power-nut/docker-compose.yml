@@ -1,0 +1,21 @@
+version: "3.7"
+
+services:
+
+  app_proxy:
+    environment:
+      APP_HOST: gbere-power-nut_app_1
+      APP_PORT: 3493
+    
+  app:
+    image: ghcr.io/networkupstools/nut:2.8.4
+    user: "1000:1000"
+    init: true
+    restart: on-failure
+    privileged: true
+    ports:
+      - "3493:3493"
+    volumes:
+      - ${APP_DATA_DIR}/data/config:/etc/nut
+      - ${APP_DATA_DIR}/data/state:/var/state/nut
+      - /dev:/dev
