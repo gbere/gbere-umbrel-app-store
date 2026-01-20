@@ -1,5 +1,3 @@
-version: "3.7"
-
 services:
 
   app_proxy:
@@ -8,14 +6,19 @@ services:
       APP_PORT: 3493
     
   app:
-    image: ghcr.io/networkupstools/nut:2.8.4
+    image: instantlinux/nut-upsd:2.8.3-r3
     user: "1000:1000"
     init: true
     restart: on-failure
     privileged: true
+    environment:
+      API_PASSWORD: changeme
+      DRIVER: blazer_usb
+      VENDORID: 0665
+
     ports:
       - "3493:3493"
     volumes:
-      - ${APP_DATA_DIR}/data/config:/etc/nut
-      - ${APP_DATA_DIR}/data/state:/var/state/nut
+      # - ${APP_DATA_DIR}/data/config:/etc/nut
+      # - ${APP_DATA_DIR}/data/state:/var/state/nut
       - /dev:/dev
