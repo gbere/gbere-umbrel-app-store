@@ -7,7 +7,6 @@ services:
     
   app:
     image: instantlinux/nut-upsd:2.8.3-r3
-    # user: "1000:1000"
     init: true
     restart: on-failure
     privileged: true

@@ -1,7 +1,7 @@
 manifestVersion: 1
 id: gbere-power-nut
 name: Network UPS Tools
-version: "2.8.4"
+version: "2.8.3"
 tagline: Monitor and manage your UPS with NUT
 icon: https://raw.githubusercontent.com/gbere/gbere-umbrel-app-gallery/main/gbere-power-nut/logo.png
 category: system
@@ -17,8 +17,8 @@ submitter: gBere
 # submission: https://github.com/getumbrel/umbrel-hello-world-app
 repo: https://github.com/networkupstools/nut
 support: https://networkupstools.org/support.html
-# gallery: 
-#   - https://i.imgur.com/yyVG0Jb.jpeg
+gallery:
+  - https://i.imgur.com/yyVG0Jb.jpeg
 #   - https://i.imgur.com/yyVG0Jb.jpeg
 #   - https://i.imgur.com/yyVG0Jb.jpeg
 releaseNotes: >-
