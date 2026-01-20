@@ -12,8 +12,8 @@ services:
     privileged: true
     environment:
       API_PASSWORD: changeme
-      DRIVER: blazer_usb
-      VENDORID: 0665
+      DRIVER: nutdrv_qx
+      # VENDORID: 0665
 
     ports:
       - "3493:3493"
