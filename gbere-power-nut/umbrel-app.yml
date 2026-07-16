@@ -1,20 +1,24 @@
 manifestVersion: 1
 id: gbere-power-nut
 name: Network UPS Tools
-version: "2.8.3.1"
+version: "2.8.3.2"
 tagline: Monitor and manage your UPS with NUT
 icon: https://raw.githubusercontent.com/gbere/gbere-umbrel-app-gallery/main/gbere-power-nut/logo.png
 category: system
-port: 3493
+port: 3494
 description: >-
   Network UPS Tools is a collection of programs which provide a common
   interface for monitoring and administering UPS, PDU and SCD hardware.
   It uses a layered approach to connect all of the parts.
 
 
-  The NUT server (upsd) listens on TCP port 3493. Connect your NUT
-  clients (upsmon, PeaNUT, Home Assistant, etc.) to umbrel.local:3493
-  using the username and password shown below.
+  This app includes the PeaNUT web dashboard so you can see your UPS
+  status (battery charge, load, runtime, etc.) right from your browser.
+
+
+  The NUT server (upsd) also listens on TCP port 3493. Connect your NUT
+  clients (upsmon, Home Assistant, etc.) to umbrel.local:3493 using the
+  username and password shown below.
 developer: Network UPS Tools
 website: https://networkupstools.org/
 submitter: gBere
@@ -24,10 +28,11 @@ support: https://networkupstools.org/support.html
 gallery:
   - https://i.imgur.com/yyVG0Jb.jpeg
 releaseNotes: >-
-  Fixed host port conflict by removing the HTTP proxy (NUT speaks raw TCP
-  on port 3493). The NUT password is now generated per-install by umbrelOS
-  and shown in the app page — update your NUT clients (upsmon, Home
-  Assistant, PeaNUT, etc.) with the new credentials after updating.
+  Added the PeaNUT web dashboard: the "Open" button now shows your UPS
+  status in the browser instead of pointing at the raw NUT TCP port,
+  which is not a web page. NUT clients (upsmon, Home Assistant, etc.)
+  still connect to umbrel.local:3493 with the credentials shown in the
+  app page.
 dependencies: []
 path: ""
 deterministicPassword: true

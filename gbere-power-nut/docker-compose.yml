@@ -1,6 +1,13 @@
 services:
 
-  app:
+  # Umbrel's reverse proxy: serves the PeaNUT web dashboard on the
+  # manifest port (3494) behind umbrelOS authentication
+  app_proxy:
+    environment:
+      APP_HOST: gbere-power-nut_web_1
+      APP_PORT: 8080
+
+  server:
     image: instantlinux/nut-upsd:2.8.3-r3@sha256:edadf0d18b7e240fba0e4073dfcc13f19f93839de0656f4b39752c0cad880cd5
     init: true
     restart: on-failure
@@ -17,3 +24,20 @@ services:
       - "3493:3493"
     volumes:
       - /dev/bus/usb:/dev/bus/usb
+
+  # PeaNUT: web dashboard for the NUT server
+  web:
+    image: brandawg93/peanut:6.0.0@sha256:6629dce915da8b313f08b2e73dd2e54b60e7c0f642c21a8ebc37fe0a820bf41e
+    restart: on-failure
+    depends_on:
+      - server
+    environment:
+      NUT_HOST: server
+      NUT_PORT: "3493"
+      USERNAME: upsmon
+      PASSWORD: ${APP_PASSWORD}
+      WEB_PORT: "8080"
+      # umbrelOS already gates access via app_proxy
+      AUTH_DISABLED: "true"
+    volumes:
+      - ${APP_DATA_DIR}/data/peanut:/config
