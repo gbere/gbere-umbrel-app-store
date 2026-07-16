@@ -1,23 +1,19 @@
 services:
 
-  app_proxy:
-    environment:
-      APP_HOST: gbere-power-nut_app_1
-      APP_PORT: 3493
-    
   app:
-    image: instantlinux/nut-upsd:2.8.3-r3
+    image: instantlinux/nut-upsd:2.8.3-r3@sha256:edadf0d18b7e240fba0e4073dfcc13f19f93839de0656f4b39752c0cad880cd5
     init: true
     restart: on-failure
+    # Required to access the UPS over USB (device paths change on replug)
     privileged: true
     environment:
-      API_PASSWORD: changeme
+      API_USER: upsmon
+      API_PASSWORD: ${APP_PASSWORD}
       DRIVER: nutdrv_qx
-      # VENDORID: 0665
-
+      # VENDORID: "0665"
+    # NUT speaks a raw TCP protocol (not HTTP), so it is published
+    # directly instead of going through Umbrel's app_proxy
     ports:
       - "3493:3493"
     volumes:
-      # - ${APP_DATA_DIR}/data/config:/etc/nut
-      # - ${APP_DATA_DIR}/data/state:/var/state/nut
-      - /dev:/dev
+      - /dev/bus/usb:/dev/bus/usb
