@@ -9,16 +9,30 @@ port: 3494
 description: >-
   Network UPS Tools is a collection of programs which provide a common
   interface for monitoring and administering UPS, PDU and SCD hardware.
-  It uses a layered approach to connect all of the parts.
 
 
-  This app includes the PeaNUT web dashboard so you can see your UPS
-  status (battery charge, load, runtime, etc.) right from your browser.
+  This app packages two services:
 
 
-  The NUT server (upsd) also listens on TCP port 3493. Connect your NUT
-  clients (upsmon, Home Assistant, etc.) to umbrel.local:3493 using the
-  username and password shown below.
+  - NUT server (upsd): talks to your UPS over USB and exposes the
+  standard NUT TCP protocol on port 3493, so external clients such as
+  upsmon, Home Assistant or other PeaNUT instances can connect to
+  umbrel.local:3493.
+
+  - PeaNUT web dashboard: the interface behind the app's "Open" button,
+  showing your UPS status (battery charge, load, estimated runtime,
+  variables, etc.) in your browser.
+
+
+  Credentials: the NUT username and a unique per-install password are
+  shown on this page. Use them to connect your NUT clients (host:
+  umbrel.local, port: 3493, username: upsmon).
+
+
+  Home Assistant integration: add the NUT integration
+  (https://www.home-assistant.io/integrations/nut/) in Home Assistant
+  and point it to umbrel.local:3493 with the credentials shown on this
+  page. More info: https://github.com/gbere/gbere-umbrel-app-store
 developer: Network UPS Tools
 website: https://networkupstools.org/
 submitter: gBere
