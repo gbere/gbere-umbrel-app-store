@@ -26,7 +26,7 @@ submission: https://github.com/gbere/gbere-umbrel-app-store
 repo: https://github.com/networkupstools/nut
 support: https://networkupstools.org/support.html
 gallery:
-  - https://i.imgur.com/yyVG0Jb.jpeg
+  - https://raw.githubusercontent.com/Brandawg93/PeaNUT/main/images/charts.png
 releaseNotes: >-
   Added the PeaNUT web dashboard: the "Open" button now shows your UPS
   status in the browser instead of pointing at the raw NUT TCP port,
