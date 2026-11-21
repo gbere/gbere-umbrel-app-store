@@ -1,0 +1,31 @@
+services:
+
+  # Umbrel's reverse proxy: serves the status page on the manifest port
+  # (3495) behind umbrelOS authentication
+  app_proxy:
+    environment:
+      APP_HOST: gbere-home-egress_tunnel_1
+      APP_PORT: 8080
+
+  # Outbound only. Nothing here is published on the device or the network:
+  # the status page is reached through app_proxy, and the HTTP proxy listens
+  # on the container's loopback for the SSH tunnel alone.
+  tunnel:
+    image: ghcr.io/gbere/home-egress:1.0.0
+    init: true
+    restart: on-failure
+    user: "1000:1000"
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp
+    environment:
+      # Where the proxy appears on the destination server. Its sshd must
+      # allow exactly this with permitlisten="..." on the key.
+      REMOTE_BIND: "0.0.0.0:1080"
+    volumes:
+      # The key pair, the destination's pinned host key and the two settings
+      - ${APP_DATA_DIR}/data:/data

@@ -19,6 +19,7 @@ This is a community-driven and independently maintained [Umbrel Community App St
 | Nr. | Logo | App-Name | Description | Port |
 | :-: | :--: | -------- | ----------- | :--: |
 | 1 | <img src="https://raw.githubusercontent.com/gbere/gbere-umbrel-app-gallery/main/gbere-power-nut/logo.png" width="50" height="50"> | [Network UPS Tools](https://github.com/networkupstools/nut) | Monitor and manage your UPS with NUT. Includes the [PeaNUT](https://github.com/Brandawg93/PeaNUT) web dashboard to check battery charge, load and runtime from your browser. | 3494 |
+| 2 | <img src="https://raw.githubusercontent.com/gbere/gbere-umbrel-app-gallery/main/gbere-home-egress/logo.png" width="50" height="50"> | [Home Egress](gbere-home-egress) | Lend your home connection to one server you own, for a short list of websites only. Outbound reverse SSH tunnel plus a domain-allowlisted proxy: no port opened at home, no access to your device or network. | 3495 |
 
 ## About Network UPS Tools (NUT)
 
@@ -42,6 +43,37 @@ The NUT username and a unique per-install password are shown in the app's page i
 
 Add the [NUT integration](https://www.home-assistant.io/integrations/nut/) in Home Assistant and point it to `umbrel.local:3493` with the credentials above.
 
+## About Home Egress
+
+Some websites refuse visitors coming from datacenter addresses. Home Egress lets a server you own reach a short list of such sites through your home internet connection instead — and nothing else.
+
+This app runs one unprivileged container (read-only filesystem, no capabilities, no published ports) with two jobs:
+
+- **Allowlisted HTTP proxy** — forwards only to the domains you list, subdomains included. Everything else is refused, including every IP address, so your local network cannot be reached through it. The list starts empty: nothing is forwarded until you add a domain.
+- **Reverse SSH tunnel** — an outbound connection from your Umbrel to your server that publishes the proxy there. Because the connection always starts at home, you need no open port, no port forwarding and no static IP address; it reconnects on its own when the line drops or the address changes.
+
+The app's **Open** button (port `3495`) shows the status page, behind umbrelOS authentication: the tunnel's state, the public key, the destination and the allowed domains.
+
+### Setup
+
+1. Install the app and open it. A key pair is generated on first start; copy the **public key** shown.
+2. On your server, authorise that key for the account the tunnel will use, restricted so it can do nothing but open the tunnel port. In that account's `~/.ssh/authorized_keys`:
+
+   ```
+   restrict,port-forwarding,permitlisten="1080",permitopen="127.0.0.1:1",command="/usr/sbin/nologin" ssh-ed25519 AAAA... home-egress
+   ```
+
+   `restrict` removes the terminal, agent and X11 forwarding; `command` removes the ability to run anything; `permitlisten` limits the key to that one listening port; `permitopen` points outgoing forwards at a dead end. Use a dedicated account with no password and no sudo rights.
+3. Back in the app, enter the **destination** as `user@server` or `user@server:port` and save. The server's host key is pinned on the first connection; a different key later is refused.
+4. Enter the **allowed domains**, one per line, and save. The change applies immediately.
+5. On the server, point your client at the proxy: `http://<listen-address>:1080`.
+
+The proxy is published on the server at `0.0.0.0:1080` (`REMOTE_BIND` in `docker-compose.yml`). A stock `sshd` only honours a non-loopback address when `GatewayPorts` allows it (`GatewayPorts clientspecified`); otherwise the proxy appears on the server's `127.0.0.1:1080`. Either way, keep that port closed to the internet in the server's firewall — the proxy has no password of its own.
+
+### What a compromised server could do
+
+Reach the allowed domains from your home IP address. It cannot open a shell on your Umbrel, reach other devices on your network, or browse anything not on the list.
+
 ## Support
 
-If you find an issue with an app packaged in this store, please [open an issue](https://github.com/gbere/gbere-umbrel-app-store/issues) in this repository. For issues with NUT itself, see the [NUT support page](https://networkupstools.org/support.html).
+If you find an issue with an app packaged in this store, please [open an issue](https://github.com/gbere/gbere-umbrel-app-store/issues) in this repository. Home Egress is maintained here. For issues with NUT itself, see the [NUT support page](https://networkupstools.org/support.html).

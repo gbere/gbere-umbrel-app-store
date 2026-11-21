@@ -1,0 +1,46 @@
+manifestVersion: 1
+id: gbere-home-egress
+name: Home Egress
+version: "1.0.0"
+tagline: Lend your home connection to one server, for a few sites only
+icon: https://raw.githubusercontent.com/gbere/gbere-umbrel-app-gallery/main/gbere-home-egress/logo.png
+category: networking
+port: 3495
+description: >-
+  Home Egress lets a server you own reach a short list of websites through
+  your home internet connection, without opening any port at home and
+  without giving that server any access to your device or your network.
+
+
+  It runs two things in one unprivileged container:
+
+
+  - An HTTP proxy that forwards only to the domains you list. Everything
+  else is refused, including every IP address, so your local network is out
+  of reach.
+
+  - An outbound SSH connection to your server that publishes that proxy
+  there (a reverse tunnel). The connection always starts from your home, so
+  a changing home IP address does not matter.
+
+
+  Setup: open the app, copy the public key shown and authorise it on your
+  server restricted to opening the tunnel port, then enter the destination
+  (user@server:port) and the allowed domains. Nothing is forwarded until you
+  list at least one domain.
+
+
+  More info: https://github.com/gbere/gbere-umbrel-app-store
+developer: gBere
+website: https://github.com/gbere/gbere-umbrel-app-store
+submitter: gBere
+submission: https://github.com/gbere/gbere-umbrel-app-store
+repo: https://github.com/gbere/gbere-umbrel-app-store
+support: https://github.com/gbere/gbere-umbrel-app-store/issues
+gallery:
+  - https://raw.githubusercontent.com/gbere/gbere-umbrel-app-gallery/main/gbere-home-egress/1.png
+releaseNotes: ""
+dependencies: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""
