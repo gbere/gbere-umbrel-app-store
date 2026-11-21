@@ -3,7 +3,7 @@
 # image accepts connections from outside the container except the status page.
 FROM alpine:3.22
 
-RUN apk add --no-cache openssh-client squid busybox-extras \
+RUN apk add --no-cache openssh-client squid dnsmasq busybox-extras \
     && adduser -D -u 1000 egress \
     && mkdir /data && chown egress:egress /data
 

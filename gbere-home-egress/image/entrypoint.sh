@@ -1,8 +1,9 @@
 #!/bin/sh
-# Three processes, all unprivileged:
+# Four processes, all unprivileged:
 #   1. squid      - HTTP proxy that only forwards to the allowed domains
-#   2. httpd      - status page (shows the public key, sets the destination)
-#   3. ssh -N -R  - publishes the proxy on the remote server, reconnecting forever
+#   2. dnsmasq    - the proxy's resolver; drops answers that point at private addresses
+#   3. httpd      - status page (shows the public key, sets the destination)
+#   4. ssh -N -R  - publishes the proxy on the remote server, reconnecting forever
 set -eu
 
 DATA=/data
@@ -35,6 +36,8 @@ fi
 
 cat > "${RUN}/squid.conf" <<CONF
 http_port ${PROXY_LISTEN}:8888
+# Names are resolved by the dnsmasq started below and by nothing else.
+dns_nameservers 127.0.0.1
 pid_filename ${RUN}/squid.pid
 cache deny all
 cache_log /dev/null
@@ -44,24 +47,39 @@ shutdown_lifetime 1 seconds
 via off
 forwarded_for delete
 
-acl allowed dstdomain "${RUN}/allowed-domains"
+# -n: match the name as the client wrote it. Without it squid reverse-resolves
+# an IP-literal host and would accept any address whose PTR record claims an
+# allowed name - and PTR records are written by whoever owns the address.
+acl allowed dstdomain -n "${RUN}/allowed-domains"
+acl ip_literal dstdom_regex -n ^[0-9.]+$ ^\\[ :
 # Checked against the address a name RESOLVES to, not against its text: an
 # allowed domain whose DNS answers with a private address is still refused, so
 # neither a typo nor a hostile DNS record can turn the allowlist into a way
 # onto the network this container sits on.
 acl private dst 0.0.0.0/8 10.0.0.0/8 100.64.0.0/10 127.0.0.0/8 169.254.0.0/16 172.16.0.0/12 192.0.0.0/24 192.168.0.0/16 198.18.0.0/15 224.0.0.0/4 240.0.0.0/4
-acl private dst ::/128 ::1/128 ::ffff:0:0/96 64:ff9b::/96 fc00::/7 fe80::/10 ff00::/8
+acl private dst ::/128 ::1/128 64:ff9b::/96 fc00::/7 fe80::/10 ff00::/8
 acl web_ports port 80 443
 acl tls_port port 443
 acl CONNECT method CONNECT
 
 http_access deny !web_ports
 http_access deny CONNECT !tls_port
+http_access deny ip_literal
 http_access deny !allowed
 http_access deny private
 http_access allow allowed
 http_access deny all
 CONF
+
+# squid's "private" ACL resolves a name once to judge it and again to connect;
+# a DNS server that answers differently the second time would slip between the
+# two. This resolver closes that gap at the source: it throws away any upstream
+# answer in a private, loopback or link-local range (--stop-dns-rebind), so
+# such an address never reaches squid at all, and it holds every answer for at
+# least a minute so both lookups of a request see the same one.
+# If it cannot start, squid has no resolver and forwards nothing.
+dnsmasq --keep-in-foreground --port=53 --listen-address=127.0.0.1 --bind-interfaces \
+    --stop-dns-rebind --min-cache-ttl=60 --no-hosts --pid-file= --log-facility=- &
 
 squid -N -f "${RUN}/squid.conf" &
 httpd -f -p 8080 -h /app/www &
