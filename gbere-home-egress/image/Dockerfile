@@ -1,9 +1,9 @@
-# Outbound-only egress proxy: a domain-allowlisted HTTP proxy (tinyproxy) that
+# Outbound-only egress proxy: a domain-allowlisted HTTP proxy (squid) that
 # is published on a remote server through a reverse SSH tunnel. Nothing in this
 # image accepts connections from outside the container except the status page.
 FROM alpine:3.22
 
-RUN apk add --no-cache openssh-client tinyproxy busybox-extras \
+RUN apk add --no-cache openssh-client squid busybox-extras \
     && adduser -D -u 1000 egress \
     && mkdir /data && chown egress:egress /data
 

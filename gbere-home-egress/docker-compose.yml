@@ -22,10 +22,6 @@ services:
       - no-new-privileges:true
     tmpfs:
       - /tmp
-    environment:
-      # Where the proxy appears on the destination server. Its sshd must
-      # allow exactly this with permitlisten="..." on the key.
-      REMOTE_BIND: "0.0.0.0:1080"
     volumes:
-      # The key pair, the destination's pinned host key and the two settings
+      # The key pair, the destination's pinned host key and the settings
       - ${APP_DATA_DIR}/data:/data

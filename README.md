@@ -49,7 +49,7 @@ Some websites refuse visitors coming from datacenter addresses. Home Egress lets
 
 This app runs one unprivileged container (read-only filesystem, no capabilities, no published ports) with two jobs:
 
-- **Allowlisted HTTP proxy** — forwards only to the domains you list, subdomains included. Everything else is refused, including every IP address, so your local network cannot be reached through it. The list starts empty: nothing is forwarded until you add a domain.
+- **Allowlisted HTTP proxy** — forwards only to the domains you list, subdomains included, on ports 80 and 443. Everything else is refused. The check also covers the address a name resolves to: a listed domain that points at a private, loopback or link-local address is refused too, so your local network cannot be reached through it. The list starts empty: nothing is forwarded until you add a domain.
 - **Reverse SSH tunnel** — an outbound connection from your Umbrel to your server that publishes the proxy there. Because the connection always starts at home, you need no open port, no port forwarding and no static IP address; it reconnects on its own when the line drops or the address changes.
 
 The app's **Open** button (port `3495`) shows the status page, behind umbrelOS authentication: the tunnel's state, the public key, the destination and the allowed domains.
@@ -60,15 +60,15 @@ The app's **Open** button (port `3495`) shows the status page, behind umbrelOS a
 2. On your server, authorise that key for the account the tunnel will use, restricted so it can do nothing but open the tunnel port. In that account's `~/.ssh/authorized_keys`:
 
    ```
-   restrict,port-forwarding,permitlisten="1080",permitopen="127.0.0.1:1",command="/usr/sbin/nologin" ssh-ed25519 AAAA... home-egress
+   restrict,port-forwarding,permitlisten="127.0.0.1:1080",permitopen="127.0.0.1:1",command="/usr/sbin/nologin" ssh-ed25519 AAAA... home-egress
    ```
 
    `restrict` removes the terminal, agent and X11 forwarding; `command` removes the ability to run anything; `permitlisten` limits the key to that one listening port; `permitopen` points outgoing forwards at a dead end. Use a dedicated account with no password and no sudo rights.
 3. Back in the app, enter the **destination** as `user@server` or `user@server:port` and save. The server's host key is pinned on the first connection; a different key later is refused.
 4. Enter the **allowed domains**, one per line, and save. The change applies immediately.
-5. On the server, point your client at the proxy: `http://<listen-address>:1080`.
+5. On the server, point your client at the proxy: `http://127.0.0.1:1080`.
 
-The proxy is published on the server at `0.0.0.0:1080` (`REMOTE_BIND` in `docker-compose.yml`). A stock `sshd` only honours a non-loopback address when `GatewayPorts` allows it (`GatewayPorts clientspecified`); otherwise the proxy appears on the server's `127.0.0.1:1080`. Either way, keep that port closed to the internet in the server's firewall — the proxy has no password of its own.
+The proxy is published on the server at `127.0.0.1:1080` by default; change it under **Listen address on the server** if the client that needs it cannot reach the server's loopback (a container, for instance). A stock `sshd` only honours a non-loopback address when `GatewayPorts clientspecified` is set, and `permitlisten` must name the same address and port. The proxy has no password of its own: never publish it on an address the internet can reach.
 
 ### What a compromised server could do
 
